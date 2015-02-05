@@ -80,7 +80,7 @@ namespace pluginlib
          * @return An instance of the class
          * @deprecated use either createInstance() or createUnmanagedInstance().
          */
-        __attribute__((deprecated)) T* createClassInstance(const std::string& lookup_name, bool auto_load = true);
+        ROS_DEPRECATED T* createClassInstance(const std::string& lookup_name, bool auto_load = true);
 
         /**
          * @brief  Creates an instance of a desired class (which implicitly calls loadLibraryForClass() to increment the library counter). Deleting the instance and calling unloadLibraryForClass() is automatically handled by the shared pointer.

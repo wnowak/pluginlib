@@ -34,7 +34,10 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+
+#ifndef _MSC_VER
 #include <dlfcn.h>
+#endif
 
 using std::cout;
 using std::endl;
@@ -104,7 +107,12 @@ int main(int argc, char* argv[])
 std::string callCommandLine(const char* cmd)
 /***************************************************************************/
 {
-	FILE* pipe = popen(cmd, "r");
+#ifdef _MSC_VER
+    FILE* pipe = _popen(cmd, "r");
+#else
+    FILE* pipe = popen(cmd, "r");
+#endif
+
 	if (!pipe)
 	  return "ERROR";
 	char buffer[128];
@@ -114,7 +122,13 @@ std::string callCommandLine(const char* cmd)
 	  if(fgets(buffer, 128, pipe) != NULL)
 		  result += buffer;
 	}
-	pclose(pipe);
+
+#ifdef _MSC_VER
+    _pclose(pipe);
+#else
+    pclose(pipe);
+#endif
+
 	return result;
 }
 
@@ -163,7 +177,13 @@ void generateAndLoadTypedPluginInterface()
 	}
 
 	cout << "Loading shared object into memory." << endl;
+
+#ifdef _MSC_VER
+	g_class_loader_library_handle = LoadLibrary("TypedPluginInterface.dll");
+#elif
 	g_class_loader_library_handle = dlopen("libTypedPluginInterface.so", RTLD_LAZY);
+#endif
+
 	if(g_class_loader_library_handle)
 		cout << "Shared object successfully loaded into memory." << endl;		
 	else
@@ -176,8 +196,13 @@ void generateAndLoadTypedPluginInterface()
 template <typename T> T getPluginFunction(const std::string& function_name)
 /*****************************************************************************/
 {
+#ifdef _MSC_VER
+	void* ptr = GetProcAddress((HMODULE) g_class_loader_library_handle, function_name.c_str());
+#else
 	void* ptr = dlsym(g_class_loader_library_handle, function_name.c_str());
-	return((T)(ptr));
+#endif
+
+return((T)(ptr));
 }
 
 vector<string>  getCLIArguments()

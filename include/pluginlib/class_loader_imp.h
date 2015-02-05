@@ -78,8 +78,13 @@ namespace pluginlib
   std::string ClassLoader<T>::callCommandLine(const char* cmd)
   /***************************************************************************/
   {
+#ifdef _MSC_VER
+    FILE* pipe = _popen(cmd, "r");
+#else
     FILE* pipe = popen(cmd, "r");
-    if (!pipe)
+#endif
+
+	if (!pipe)
       return "ERROR";
     char buffer[128];
     std::string result = "";
@@ -88,8 +93,14 @@ namespace pluginlib
       if(fgets(buffer, 128, pipe) != NULL)
               result += buffer;
     }
+
+#ifdef _MSC_VER
+    _pclose(pipe);
+#else
     pclose(pipe);
-    return result;
+#endif
+
+	return result;
   }
 
   template <class T>
@@ -451,7 +462,11 @@ namespace pluginlib
   /***************************************************************************/
   {
 #if BOOST_FILESYSTEM_VERSION >= 3
+  #if defined(_MSC_VER)
+    return(boost::filesystem::path("/").string()); // Would be better if class would use wchar
+  #elif
     return(boost::filesystem::path("/").native());
+  #endif
 #else
     return(boost::filesystem::path("/").external_file_string());
 #endif

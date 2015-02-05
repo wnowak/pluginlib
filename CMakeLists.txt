@@ -13,6 +13,8 @@ catkin_package(
   DEPENDS Boost TinyXML
 )
 
+message(tinyinc ${TinyXML_INCLUDE_DIRS})
+
 include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TinyXML_INCLUDE_DIRS})
 
 add_executable(plugin_tool src/plugin_tool.cpp)
